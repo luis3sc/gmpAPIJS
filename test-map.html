@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        /*
+ * Always set the map height explicitly to define the size of the div element
+ * that contains the map.
+ */
+#map {
+  height: 100%;
+}
+
+/*
+ * Optional: Makes the sample page fill the window.
+ */
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+[class$=api-load-alpha-banner] {
+  display: none;
+}
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+
+    <!--
+      The `defer` attribute causes the callback to execute after the full HTML
+      document has been parsed. For non-blocking uses, avoiding race conditions,
+      and consistent behavior across browsers, consider loading using Promises.
+      See https://developers.google.com/maps/documentation/javascript/load-maps-js-api
+      for more information.
+      -->
+    <script
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBZ5ihFZgOO_KI1pPvj4yqI0Wi-XMkKxzA&callback=initMap&libraries=marker&v=beta"
+      defer
+    ></script>
+    <script>
+        function initMap() {
+  const map = new google.maps.Map(document.getElementById("map"), {
+    zoom: 12,
+    center: { lat: -12.036928440426761, lng: -76.91837849042165 },
+    mapId: "680e04a2df73641a",
+  });
+  const iconBase =
+    "https://developers.google.com/maps/documentation/javascript/examples/full/images/";
+  const icons = {
+    parking: {
+      icon: iconBase + "parking_lot_maps.png",
+    },
+    library: {
+      icon: iconBase + "library_maps.png",
+    },
+    info: {
+      icon: "https://developers.google.com/maps/documentation/javascript/examples/full/images/parking_lot_maps.png",
+    },
+  };
+  // Set LatLng and title text for the markers. The first marker (Boynton Pass)
+  // receives the initial focus when tab is pressed. Use arrow keys to
+  // move between markers; press tab again to cycle through the map controls.
+  const tourStops = [
+    {
+         
+      position: { lat: -12.036928440426761, lng: -76.91837849042165 },
+      title: "Tortaza Barbadillo",
+      type: "info",
+    },
+    {
+      position: { lat: -12.04087157475735, lng: -76.99984477049416 },
+      title: "Tortaza El Agustino",
+    },
+    {
+        
+      position: { lat: -12.033424795229754, lng: -76.92635661036721 },
+      title: "Tortaza Ceres",
+    },
+    { 
+      position: { lat: -12.039521430447474, lng: -76.99119801159921 },
+      title: "Red Rock Crossing",
+    },
+    {
+      position: { lat: -12.031551158062417, lng: -76.90496343559133 },
+      title: "Bell Rock",
+    },
+    { 
+      position: { lat: -12.016932837936126, lng: -76.81711512176614 },
+      title: "Bell Rock",
+    },
+  ];
+  // Create an info window to share between markers.
+  const infoWindow = new google.maps.InfoWindow();
+
+  // Create the markers.
+  tourStops.forEach(({ position, title }, i) => {
+    const pinView = new google.maps.marker.PinView({
+      glyph: `${i + 1}`,
+    });
+    const marker = new google.maps.marker.AdvancedMarkerView({
+      position,
+      map,
+      title: `${i + 1}. ${title}`,
+      content: pinView.element,
+    });
+
+    // Add a click listener for each marker, and set up the info window.
+    marker.addListener("click", ({ domEvent, latLng }) => {
+      const { target } = domEvent;
+
+      infoWindow.close();
+      infoWindow.setContent(marker.title);
+      infoWindow.open(marker.map, marker);
+    });
+  });
+}
+
+window.initMap = initMap;
+
+    </script>
+</body>
+</html>

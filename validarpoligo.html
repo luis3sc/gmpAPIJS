@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script>
+        // Función para inicializar el mapa
+        function initMap() {
+            // Crear un mapa centrado en las coordenadas del polígono
+            var map = new google.maps.Map(document.getElementById('map'), {
+                center: { lat: 37.778, lng: -122.425 },
+                zoom: 14
+            });
+
+            // Definir las coordenadas del polígono
+            var coordenadasPoligono = [
+                { lat: -12.045956, lng: -76.944525 },
+                { lat: -12.051958, lng: -76.942551 },
+                { lat: -12.05265, lng: -76.942186 },
+                { lat: -12.052902, lng: -76.941735 },
+                { lat: -12.052797, lng: -76.941306 },
+                { lat: -12.053112, lng: -76.940856 },
+                { lat: -12.053553, lng: -76.94019 },
+                { lat: -12.053805, lng: -76.939354 },
+                { lat: -12.053993, lng: -76.933367 },
+                { lat: -12.059995, lng: -76.930277 },
+                { lat: -12.066227, lng: -76.927487 },
+                { lat: -12.067255, lng: -76.926243 },
+                { lat: -12.067759, lng: -76.922638 },
+                { lat: -12.064611, lng: -76.918518 },
+                { lat: -12.061674, lng: -76.915299 },
+                { lat: -12.057687, lng: -76.912939 },
+                { lat: -12.05563, lng: -76.908819 },
+                { lat: -12.05265, lng: -76.908218 },
+                { lat: -12.049125, lng: -76.908948 },
+                { lat: -12.041151, lng: -76.912167 },
+                { lat: -12.036618, lng: -76.914312 },
+                { lat: -12.034036, lng: -76.915214 },
+                { lat: -12.033617, lng: -76.916201 },
+                { lat: -12.032399, lng: -76.916995 },
+                { lat: -12.030679, lng: -76.918003 },
+                { lat: -12.028076, lng: -76.917907 },
+                { lat: -12.026765, lng: -76.91796 },
+                { lat: -12.0256, lng: -76.918497 },
+                { lat: -12.024299, lng: -76.918926 },
+                { lat: -12.023826, lng: -76.919076 },
+                { lat: -12.022242, lng: -76.919848 },
+                { lat: -12.023207, lng: -76.930191 },
+                { lat: -12.022872, lng: -76.937315 },
+                { lat: -12.022914, lng: -76.942122 },
+                { lat: -12.023291, lng: -76.945254 },
+                { lat: -12.024131, lng: -76.953322 },
+                { lat: -12.027971, lng: -76.954438 },
+                { lat: -12.028223, lng: -76.95476 },
+                { lat: -12.029566, lng: -76.955339 },
+                { lat: -12.028895, lng: -76.951069 },
+                { lat: -12.035817, lng: -76.949322 },
+                { lat: -12.043855, lng: -76.945674 }
+            ];
+
+            // Crear un objeto de polígono
+            var poligono = new google.maps.Polygon({ paths: coordenadasPoligono });
+
+            // Función para obtener la ubicación del usuario
+            function obtenerUbicacion() {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(function (position) {
+                        var latitudUsuario = position.coords.latitude;
+                        var longitudUsuario = position.coords.longitude;
+
+                        // Crear un marcador para la ubicación del usuario
+                        var marker = new google.maps.Marker({
+                            position: { lat: latitudUsuario, lng: longitudUsuario },
+                            map: map,
+                            title: 'Tu Ubicación'
+                        });
+
+                        // Centrar el mapa en la ubicación del usuario
+                        map.setCenter({ lat: latitudUsuario, lng: longitudUsuario });
+
+                        // Verificar si el punto de ubicación está dentro del polígono
+                        var puntoUsuario = new google.maps.LatLng(latitudUsuario, longitudUsuario);
+                        var estaDentro = google.maps.geometry.poly.containsLocation(puntoUsuario, poligono);
+
+                        // Verificar el resultado y mostrar un mensaje
+                        if (estaDentro) {
+                            alert('¡Tu ubicación está dentro de nuestra Area de Delivery!');
+                        } else {
+                            alert('Tu ubicación está fuera del polígono.');
+                        }
+                    });
+                } else {
+                    alert('Tu navegador no soporta la geolocalización.');
+                }
+            }
+
+            // Asignar la función obtenerUbicacion al botón
+            document.querySelector('button').addEventListener('click', obtenerUbicacion);
+        }
+    </script>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBZ5ihFZgOO_KI1pPvj4yqI0Wi-XMkKxzA&libraries=geometry&callback=initMap"></script>
+</head>
+<body>
+    <button>Obtener Ubicación</button>
+    <div id="map" style="height: 400px; width: 100%;"></div>
+    
+</body>
+</html>
