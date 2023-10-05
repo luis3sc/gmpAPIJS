@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script>
+        var map, autocomplete, marker;
+        // Definir las coordenadas de los polígonos
+        var poligono1 = [
+            { lat: -12.045956, lng: -76.944525 },
+            { lat: -12.051958, lng: -76.942551 },
+            { lat: -12.05265, lng: -76.942186 },
+            { lat: -12.052902, lng: -76.941735 },
+            { lat: -12.052797, lng: -76.941306 },
+            { lat: -12.053112, lng: -76.940856 },
+            { lat: -12.053553, lng: -76.94019 },
+            { lat: -12.053805, lng: -76.939354 },
+            { lat: -12.053993, lng: -76.933367 },
+            { lat: -12.059995, lng: -76.930277 },
+            { lat: -12.066227, lng: -76.927487 },
+            { lat: -12.067255, lng: -76.926243 },
+            { lat: -12.067759, lng: -76.922638 },
+            { lat: -12.064611, lng: -76.918518 },
+            { lat: -12.061674, lng: -76.915299 },
+            { lat: -12.057687, lng: -76.912939 },
+            { lat: -12.05563, lng: -76.908819 },
+            { lat: -12.05265, lng: -76.908218 },
+            { lat: -12.049125, lng: -76.908948 },
+            { lat: -12.041151, lng: -76.912167 },
+            { lat: -12.036618, lng: -76.914312 },
+            { lat: -12.034036, lng: -76.915214 },
+            { lat: -12.033617, lng: -76.916201 },
+            { lat: -12.032399, lng: -76.916995 },
+            { lat: -12.030679, lng: -76.918003 },
+            { lat: -12.028076, lng: -76.917907 },
+            { lat: -12.026765, lng: -76.91796 },
+            { lat: -12.0256, lng: -76.918497 },
+            { lat: -12.024299, lng: -76.918926 },
+            { lat: -12.023826, lng: -76.919076 },
+            { lat: -12.022242, lng: -76.919848 },
+            { lat: -12.023207, lng: -76.930191 },
+            { lat: -12.022872, lng: -76.937315 },
+            { lat: -12.022914, lng: -76.942122 },
+            { lat: -12.023291, lng: -76.945254 },
+            { lat: -12.024131, lng: -76.953322 },
+            { lat: -12.027971, lng: -76.954438 },
+            { lat: -12.028223, lng: -76.95476 },
+            { lat: -12.029566, lng: -76.955339 },
+            { lat: -12.028895, lng: -76.951069 },
+            { lat: -12.035817, lng: -76.949322 },
+            { lat: -12.043855, lng: -76.945674 }
+            ];
+
+        var poligono2 = [
+        { lat: -12.023473, lng: -76.91925 },
+            { lat: -12.024271, lng: -76.918907 },
+            { lat: -12.026852, lng: -76.917877 },
+            { lat: -12.030609, lng: -76.917984 },
+            { lat: -12.033694, lng: -76.916117 },
+            { lat: -12.034009, lng: -76.915152 },
+            { lat: -12.038793, lng: -76.913242 },
+            { lat: -12.04469, lng: -76.910646 }, 
+            { lat: -12.046327, lng: -76.909444 },
+            { lat: -12.049013, lng: -76.902256 },
+            { lat: -12.049832, lng: -76.896398 }, 
+            { lat: -12.053857, lng: -76.892417 },
+            { lat: -12.055242, lng: -76.885336 },
+            { lat: -12.049283, lng: -76.87495 }, 
+            { lat: -12.048401, lng: -76.868298 },
+            { lat: -12.046345, lng: -76.866796 },
+            { lat: -12.035359, lng: -76.861456 }, 
+            { lat: -12.024278, lng: -76.861113 },
+            { lat: -12.010594, lng: -76.865705 },
+            { lat: -12.008957, lng: -76.866306 }, 
+            { lat: -12.006741, lng: -76.867799 },
+            { lat: -12.007035, lng: -76.873507 },
+            { lat: -12.010393, lng: -76.8793 }, 
+            { lat: -12.011988, lng: -76.878914 },
+            { lat: -12.019974, lng: -76.902609 },
+            { lat: -12.02203, lng: -76.909175 },  
+            { lat: -12.023038, lng: -76.91647 } 
+            // Coordenadas del segundo polígono
+        ];
+
+        var poligono3 = [
+            // Coordenadas del tercer polígono
+        ];
+function initMap() {
+    map = new google.maps.Map(document.getElementById('map'), {
+        center: { lat: -12.04, lng: -76.94 },
+        zoom: 14
+    });
+
+    // Inicializar el Autocomplete
+    autocomplete = new google.maps.places.Autocomplete(document.getElementById('pac-input'), {
+        types: ['geocode']
+    });
+
+    // Crear un marcador con posición inicial fuera del mapa
+    marker = new google.maps.Marker({
+        map: null
+    });
+
+    // Listener para el evento place_changed (cuando el usuario selecciona una dirección)
+    autocomplete.addListener('place_changed', function() {
+        var place = autocomplete.getPlace();
+        if (!place.geometry) {
+            // El usuario ingresó el nombre de un lugar que no se pudo encontrar
+            return;
+        }
+
+         // Verificar si la ubicación está dentro de los polígonos (polygon1, polygon2, polygon3)
+        var puntoUsuario = new google.maps.LatLng(place.geometry.location.lat(), place.geometry.location.lng());
+        var mensaje = 'Ubicación seleccionada: ' + place.formatted_address;
+
+        
+
+        var polygon1 = new google.maps.Polygon({ paths: poligono1 });
+        var polygon2 = new google.maps.Polygon({ paths: poligono2 });
+        var polygon3 = new google.maps.Polygon({ paths: poligono3 });
+
+        if (google.maps.geometry.poly.containsLocation(puntoUsuario, polygon1)) {
+            mensaje += '\nTu ubicación está dentro del Polígono 1.';
+        } else if (google.maps.geometry.poly.containsLocation(puntoUsuario, polygon2)) {
+            mensaje += '\nTu ubicación está dentro del Polígono 2.';
+        } else if (google.maps.geometry.poly.containsLocation(puntoUsuario, polygon3)) {
+            mensaje += '\nTu ubicación está dentro del Polígono 3.';
+        } else {
+            mensaje += '\nTu ubicación no está dentro de los polígonos.';
+        }
+
+        // Mostrar el mensaje correspondiente
+        alert(mensaje);
+
+        // Actualizar el contenido del div con el mensaje
+        document.getElementById('mensajeDiv').textContent = mensaje;
+
+        // Actualizar la posición del marcador en el mapa
+        marker.setPosition(puntoUsuario);
+                marker.setMap(map);
+                map.setCenter(puntoUsuario);
+            });
+        }
+
+        function getCurrentLocation() {
+            if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function(position) {
+                var latitudUsuario = position.coords.latitude;
+                var longitudUsuario = position.coords.longitude;
+
+                // Crear un objeto de LatLng para la ubicación del usuario
+                var puntoUsuario = new google.maps.LatLng(latitudUsuario, longitudUsuario);
+
+                // Verificar si el punto de ubicación está dentro de los polígonos (polygon1, polygon2, polygon3)
+                var mensaje = 'Ubicación obtenida: Latitud ' + latitudUsuario + ', Longitud ' + longitudUsuario;
+
+            
+
+                var polygon1 = new google.maps.Polygon({ paths: poligono1 });
+                var polygon2 = new google.maps.Polygon({ paths: poligono2 });
+                var polygon3 = new google.maps.Polygon({ paths: poligono3 });
+
+                // Construir el mensaje con la ubicación y el resultado de la verificación de polígonos
+                var mensaje = 'Ubicación obtenida: Latitud ' + latitudUsuario + ', Longitud ' + longitudUsuario;
+
+                if (google.maps.geometry.poly.containsLocation(puntoUsuario, polygon1)) {
+                    mensaje += '\nTu ubicación está dentro del Polígono 1.';
+                } else if (google.maps.geometry.poly.containsLocation(puntoUsuario, polygon2)) {
+                    mensaje += '\nTu ubicación está dentro del Polígono 2.';
+                } else if (google.maps.geometry.poly.containsLocation(puntoUsuario, polygon3)) {
+                    mensaje += '\nTu ubicación está dentro del Polígono 3.';
+                } else {
+                    mensaje += '\nTu ubicación no está dentro de los polígonos.';
+                }
+
+                // Mostrar el mensaje correspondiente
+                alert(mensaje);
+
+                // Actualizar el contenido del div con el mensaje
+                document.getElementById('mensajeDiv').textContent = mensaje;
+                // Mostrar la ubicación en el mapa
+                var marker = new google.maps.Marker({
+                    map: map,
+                    position: puntoUsuario
+                });
+                map.setCenter(puntoUsuario);
+                });
+            } else {
+                alert('Tu navegador no soporta la geolocalización.');
+            }
+            }
+    </script>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBZ5ihFZgOO_KI1pPvj4yqI0Wi-XMkKxzA&libraries=geometry,places&callback=initMap"></script>
+</head>
+<body>
+    <!-- Campo de entrada para la funcionalidad Autocomplete Address -->
+    <input id="pac-input" class="controls" type="text" placeholder="Introduce una dirección">
+    <!-- Botón para obtener la ubicación actual del usuario -->
+    <button onclick="getCurrentLocation()">Obtener Ubicación Actual</button>
+    <!-- Div para mostrar el mapa -->
+    <div id="map" style="height: 400px; width: 100%;"></div>
+    <div id="mensajeDiv"></div>
+</body>
+</html>
