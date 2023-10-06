@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario de Ubicación</title>
+    <!-- Obtiene la direccion por Input Autocomplete o Boton de GetCurrentUser / Valida si esta dentro de los 3 areas, muestra el mensaje personalizado y muestra los datos en los inputs -->
+    <style>
+        body {
+    font-family: Arial, sans-serif;
+    }
+    
+    .container {
+        max-width: 400px;
+        margin: 0 auto;
+        text-align: center;
+        padding: 20px;
+    }
+    
+    #map {
+        height: 300px;
+        width: 100%;
+        margin-bottom: 20px;
+    }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <input type="text" id="autocomplete" placeholder="Ingresa una dirección">
+        <button id="getCurrentUser">Obtener Usuario Actual</button>
+        <div id="map"></div>
+        <div id="message"></div>
+        <label for="address">Direccion</label>
+        <input type="text" id="address" autocomplete="address" placeholder="Dirección">
+        <br>
+        <label for="zipcode">Codigo Postal</label>
+        <input type="text" id="zipcode" autocomplete="postal-code" placeholder="Código Postal">
+        <br>
+        <label for="country">País</label>
+        <input type="text" id="country" autocomplete="country" placeholder="País">
+        <br>
+        <label for="district">Distrito</label>
+        <input type="text" id="district" autocomplete="address-level2" placeholder="Distrito">
+        <br>
+        <label for="latitude">Latitud</label>
+        <input type="text" id="latitude" autocomplete="latitude" placeholder="Latitud">
+        <br>
+        <label for="longitude">Longitud</label>
+        <input type="text" id="longitude" autocomplete="longitude" placeholder="Longitud">
+        <br>
+        <button id="saveLocation">Guardar Ubicación</button>
+    </div>
+
+    <script>
+         let map;
+        let polygons = []; // Almacena los polígonos
+        let marker;
+
+        function initMap() {
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: {
+                    lat: -12.040027573066697,
+                    lng: -76.9892217806565
+                },
+                zoom: 12
+            });
+
+            // Definir los polígonos para las tres áreas
+            const polygon1 = new google.maps.Polygon({
+                paths: [
+                { lat: -12.045956, lng: -76.944525 },
+            { lat: -12.051958, lng: -76.942551 },
+            { lat: -12.05265, lng: -76.942186 },
+            { lat: -12.052902, lng: -76.941735 },
+            { lat: -12.052797, lng: -76.941306 },
+            { lat: -12.053112, lng: -76.940856 },
+            { lat: -12.053553, lng: -76.94019 },
+            { lat: -12.053805, lng: -76.939354 },
+            { lat: -12.053993, lng: -76.933367 },
+            { lat: -12.059995, lng: -76.930277 },
+            { lat: -12.066227, lng: -76.927487 },
+            { lat: -12.067255, lng: -76.926243 },
+            { lat: -12.067759, lng: -76.922638 },
+            { lat: -12.064611, lng: -76.918518 },
+            { lat: -12.061674, lng: -76.915299 },
+            { lat: -12.057687, lng: -76.912939 },
+            { lat: -12.05563, lng: -76.908819 },
+            { lat: -12.05265, lng: -76.908218 },
+            { lat: -12.049125, lng: -76.908948 },
+            { lat: -12.041151, lng: -76.912167 },
+            { lat: -12.036618, lng: -76.914312 },
+            { lat: -12.034036, lng: -76.915214 },
+            { lat: -12.033617, lng: -76.916201 },
+            { lat: -12.032399, lng: -76.916995 },
+            { lat: -12.030679, lng: -76.918003 },
+            { lat: -12.028076, lng: -76.917907 },
+            { lat: -12.026765, lng: -76.91796 },
+            { lat: -12.0256, lng: -76.918497 },
+            { lat: -12.024299, lng: -76.918926 },
+            { lat: -12.023826, lng: -76.919076 },
+            { lat: -12.022242, lng: -76.919848 },
+            { lat: -12.023207, lng: -76.930191 },
+            { lat: -12.022872, lng: -76.937315 },
+            { lat: -12.022914, lng: -76.942122 },
+            { lat: -12.023291, lng: -76.945254 },
+            { lat: -12.024131, lng: -76.953322 },
+            { lat: -12.027971, lng: -76.954438 },
+            { lat: -12.028223, lng: -76.95476 },
+            { lat: -12.029566, lng: -76.955339 },
+            { lat: -12.028895, lng: -76.951069 },
+            { lat: -12.035817, lng: -76.949322 },
+            { lat: -12.043855, lng: -76.945674 }
+                ]
+            });
+
+            const polygon2 = new google.maps.Polygon({
+                paths: [
+                { lat: -12.023473, lng: -76.91925 },
+            { lat: -12.024271, lng: -76.918907 },
+            { lat: -12.026852, lng: -76.917877 },
+            { lat: -12.030609, lng: -76.917984 },
+            { lat: -12.033694, lng: -76.916117 },
+            { lat: -12.034009, lng: -76.915152 },
+            { lat: -12.038793, lng: -76.913242 },
+            { lat: -12.04469, lng: -76.910646 }, 
+            { lat: -12.046327, lng: -76.909444 },
+            { lat: -12.049013, lng: -76.902256 },
+            { lat: -12.049832, lng: -76.896398 }, 
+            { lat: -12.053857, lng: -76.892417 },
+            { lat: -12.055242, lng: -76.885336 },
+            { lat: -12.049283, lng: -76.87495 }, 
+            { lat: -12.048401, lng: -76.868298 },
+            { lat: -12.046345, lng: -76.866796 },
+            { lat: -12.035359, lng: -76.861456 }, 
+            { lat: -12.024278, lng: -76.861113 },
+            { lat: -12.010594, lng: -76.865705 },
+            { lat: -12.008957, lng: -76.866306 }, 
+            { lat: -12.006741, lng: -76.867799 },
+            { lat: -12.007035, lng: -76.873507 },
+            { lat: -12.010393, lng: -76.8793 }, 
+            { lat: -12.011988, lng: -76.878914 },
+            { lat: -12.019974, lng: -76.902609 },
+            { lat: -12.02203, lng: -76.909175 },  
+            { lat: -12.023038, lng: -76.91647 } 
+                ]
+            });
+
+            const polygon3 = new google.maps.Polygon({
+                paths: [{
+                        lat: 40.7128,
+                        lng: -74.0060
+                    },
+                    {
+                        lat: 40.7128,
+                        lng: -73.9761
+                    },
+                    {
+                        lat: 40.7488,
+                        lng: -73.9761
+                    },
+                    {
+                        lat: 40.7488,
+                        lng: -74.0060
+                    }
+                ]
+            });
+
+            // Almacena los polígonos en un array
+            polygons.push(polygon1);
+            polygons.push(polygon2);
+            polygons.push(polygon3);
+
+            const autocompleteInput = document.getElementById('autocomplete');
+            const getCurrentUserButton = document.getElementById('getCurrentUser');
+            const addressInput = document.getElementById('address');
+            const zipcodeInput = document.getElementById('zipcode');
+            const countryInput = document.getElementById('country');
+            const districtInput = document.getElementById('district');
+            const latitudeInput = document.getElementById('latitude');
+            const longitudeInput = document.getElementById('longitude');
+            const messageDiv = document.getElementById('message');
+
+            getCurrentUserButton.addEventListener('click', () => {
+                // Obtener la ubicación del usuario actual
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(position => {
+                        const userLocation = {
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude
+                        };
+
+                        // Validar si la ubicación está dentro de los polígonos
+                        const isInsidePolygon = checkIfInsidePolygons(userLocation);
+
+                        // Mostrar el mensaje personalizado
+                        if (isInsidePolygon) {
+                            messageDiv.textContent = 'La ubicación está dentro de los polígonos.';
+                        } else {
+                            messageDiv.textContent = 'La ubicación está fuera de los polígonos.';
+                        }
+
+                        // Mostrar el marcador en el mapa
+                        if (marker) {
+                            marker.setMap(null);
+                        }
+                        marker = new google.maps.Marker({
+                            map: map,
+                            position: userLocation
+                        });
+
+                        // Centrar el mapa en la ubicación del usuario
+                        map.setCenter(userLocation);
+                        map.setZoom(15);
+
+                        // Mostrar los datos de la ubicación en los inputs
+                        geocodeLatLng(userLocation);
+                    });
+                } else {
+                    messageDiv.textContent = 'La geolocalización no está disponible en este dispositivo.';
+                }
+            });
+
+            const autocomplete = new google.maps.places.Autocomplete(autocompleteInput);
+            autocomplete.addListener('place_changed', () => {
+                const place = autocomplete.getPlace();
+
+                // Verificar si el lugar tiene las propiedades esperadas
+                if (place.address_components) {
+                    // Actualizar los campos de entrada con los datos del lugar seleccionado
+                    addressInput.value = place.formatted_address;
+                    const zipcodeComponent = place.address_components.find(component => component.types.includes('postal_code'));
+                    zipcodeInput.value = zipcodeComponent ? zipcodeComponent.long_name : '';
+                    const countryComponent = place.address_components.find(component => component.types.includes('country'));
+                    countryInput.value = countryComponent ? countryComponent.long_name : '';
+                    const districtComponent = place.address_components.find(component => component.types.includes('administrative_area_level_2'));
+                    districtInput.value = districtComponent ? districtComponent.long_name : '';
+                    latitudeInput.value = place.geometry.location.lat();
+                    longitudeInput.value = place.geometry.location.lng();
+
+                    // Validar si la ubicación está dentro de los polígonos
+                    const insidePolygon1 = google.maps.geometry.poly.containsLocation(place.geometry.location, polygons[0]);
+                    const insidePolygon2 = google.maps.geometry.poly.containsLocation(place.geometry.location, polygons[1]);
+                    const insidePolygon3 = google.maps.geometry.poly.containsLocation(place.geometry.location, polygons[2]);
+
+                    // Mostrar un mensaje personalizado para cada área
+                    if (insidePolygon1) {
+                        messageDiv.textContent = 'La ubicación está dentro del primer polígono.';
+                    } else if (insidePolygon2) {
+                        messageDiv.textContent = 'La ubicación está dentro del segundo polígono.';
+                    } else if (insidePolygon3) {
+                        messageDiv.textContent = 'La ubicación está dentro del tercer polígono.';
+                    } else {
+                        messageDiv.textContent = 'La ubicación está fuera de los polígonos.';
+                    }
+
+                    // Mover el marcador al lugar seleccionado
+                    if (marker) {
+                        marker.setMap(null);
+                    }
+                    marker = new google.maps.Marker({
+                        map: map,
+                        position: place.geometry.location
+                    });
+
+                    // Centrar el mapa en la nueva ubicación
+                    map.setCenter(place.geometry.location);
+                    map.setZoom(15);
+                } else {
+                    // Manejar el caso donde el lugar no tiene las propiedades esperadas
+                    console.error('El lugar seleccionado no tiene las propiedades esperadas.');
+                }
+            });
+
+            function checkIfInsidePolygons(location) {
+                // Función para verificar si la ubicación está dentro de los polígonos
+                for (let i = 0; i < polygons.length; i++) {
+                    if (google.maps.geometry.poly.containsLocation(location, polygons[i])) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+            function geocodeLatLng(location) {
+                const geocoder = new google.maps.Geocoder();
+                geocoder.geocode({
+                    'location': location
+                }, function (results, status) {
+                    if (status === 'OK') {
+                        if (results[0]) {
+                            const address = results[0].formatted_address;
+                            const zipcodeComponent = results[0].address_components.find(component => component.types.includes('postal_code'));
+                            const zipcode = zipcodeComponent ? zipcodeComponent.long_name : '';
+                            const countryComponent = results[0].address_components.find(component => component.types.includes('country'));
+                            const country = countryComponent ? countryComponent.long_name : '';
+                            const districtComponent = results[0].address_components.find(component => component.types.includes('administrative_area_level_2'));
+                            const district = districtComponent ? districtComponent.long_name : '';
+                            const latitude = location.lat;
+                            const longitude = location.lng;
+
+                            // Mostrar los datos de la ubicación en los inputs
+                            addressInput.value = address;
+                            zipcodeInput.value = zipcode;
+                            countryInput.value = country;
+                            districtInput.value = district;
+                            latitudeInput.value = latitude;
+                            longitudeInput.value = longitude;
+                        } else {
+                            console.error('No se encontraron resultados de geocodificación.');
+                        }
+                    } else {
+                        console.error('La geocodificación falló debido a: ' + status);
+                    }
+                });
+            }
+        }
+    </script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBZ5ihFZgOO_KI1pPvj4yqI0Wi-XMkKxzA&libraries=geometry,places&callback=initMap" async defer></script>
+</body>
+</html>
