@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario de Ubicación</title>
+    <style>
+        body {
+    font-family: Arial, sans-serif;
+    }
+    
+    .container {
+        max-width: 400px;
+        margin: 0 auto;
+        text-align: center;
+        padding: 20px;
+    }
+    
+    #map {
+        height: 300px;
+        width: 100%;
+        margin-bottom: 20px;
+    }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <input type="text" id="autocomplete" placeholder="Ingresa una dirección">
+        <button id="getCurrentUser">Obtener Usuario Actual</button>
+        <div id="map"></div>
+        <div id="message"></div>
+        <label for="address">Direccion</label>
+        <input type="text" id="address" autocomplete="address" placeholder="Dirección">
+        <br>
+        <label for="zipcode">Codigo Postal</label>
+        <input type="text" id="zipcode" autocomplete="postal-code" placeholder="Código Postal">
+        <br>
+        <label for="country">País</label>
+        <input type="text" id="country" autocomplete="country" placeholder="País">
+        <br>
+        <label for="district">Distrito</label>
+        <input type="text" id="district" autocomplete="address-level2" placeholder="Distrito">
+        <br>
+        <label for="latitude">Latitud</label>
+        <input type="text" id="latitude" autocomplete="latitude" placeholder="Latitud">
+        <br>
+        <label for="longitude">Longitud</label>
+        <input type="text" id="longitude" autocomplete="longitude" placeholder="Longitud">
+        <br>
+        <button id="saveLocation">Guardar Ubicación</button>
+    </div>
+
+    <script>
+        let map;
+        let polygons = []; // Almacena los polígonos
+        let marker;
+
+        function initMap() {
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: {
+                    lat: -34.397,
+                    lng: 150.644
+                },
+                zoom: 8
+            });
+
+            // Definir los polígonos para las tres áreas
+            const polygon1 = new google.maps.Polygon({
+                paths: [{
+                        lat: 37.7749,
+                        lng: -122.4194
+                    },
+                    {
+                        lat: 37.7749,
+                        lng: -122.3897
+                    },
+                    {
+                        lat: 37.8049,
+                        lng: -122.3897
+                    },
+                    {
+                        lat: 37.8049,
+                        lng: -122.4194
+                    }
+                ]
+            });
+
+            const polygon2 = new google.maps.Polygon({
+                paths: [{
+                        lat: 34.0522,
+                        lng: -118.2437
+                    },
+                    {
+                        lat: 34.0522,
+                        lng: -118.2139
+                    },
+                    {
+                        lat: 34.0796,
+                        lng: -118.2139
+                    },
+                    {
+                        lat: 34.0796,
+                        lng: -118.2437
+                    }
+                ]
+            });
+
+            const polygon3 = new google.maps.Polygon({
+                paths: [{
+                        lat: 40.7128,
+                        lng: -74.0060
+                    },
+                    {
+                        lat: 40.7128,
+                        lng: -73.9761
+                    },
+                    {
+                        lat: 40.7488,
+                        lng: -73.9761
+                    },
+                    {
+                        lat: 40.7488,
+                        lng: -74.0060
+                    }
+                ]
+            });
+
+            // Almacena los polígonos en un array
+            polygons.push(polygon1);
+            polygons.push(polygon2);
+            polygons.push(polygon3);
+
+            const autocompleteInput = document.getElementById('autocomplete');
+            const getCurrentUserButton = document.getElementById('getCurrentUser');
+            const addressInput = document.getElementById('address');
+            const zipcodeInput = document.getElementById('zipcode');
+            const countryInput = document.getElementById('country');
+            const districtInput = document.getElementById('district');
+            const latitudeInput = document.getElementById('latitude');
+            const longitudeInput = document.getElementById('longitude');
+            const messageDiv = document.getElementById('message');
+
+            getCurrentUserButton.addEventListener('click', () => {
+                // Obtener la ubicación del usuario actual
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(position => {
+                        const userLocation = {
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude
+                        };
+
+                        // Validar si la ubicación está dentro de los polígonos
+                        const isInsidePolygon = checkIfInsidePolygons(userLocation);
+
+                        // Mover el marcador al lugar del usuario
+                        if (marker) {
+                            marker.setMap(null);
+                        }
+                        marker = new google.maps.Marker({
+                            map: map,
+                            position: userLocation
+                        });
+
+                        // Centrar el mapa en la ubicación del usuario
+                        map.setCenter(userLocation);
+                        map.setZoom(15);
+
+                        // Mostrar un mensaje personalizado
+                        if (isInsidePolygon) {
+                            messageDiv.textContent = 'La ubicación está dentro de los polígonos.';
+                        } else {
+                            messageDiv.textContent = 'La ubicación está fuera de los polígonos.';
+                        }
+                    });
+                } else {
+                    messageDiv.textContent = 'La geolocalización no está disponible en este dispositivo.';
+                }
+            });
+
+            const autocomplete = new google.maps.places.Autocomplete(autocompleteInput);
+            autocomplete.addListener('place_changed', () => {
+                const place = autocomplete.getPlace();
+
+                // Verificar si el lugar tiene las propiedades esperadas
+                if (place.address_components) {
+                    // Actualizar los campos de entrada con los datos del lugar seleccionado
+                    addressInput.value = place.formatted_address;
+                    const zipcodeComponent = place.address_components.find(component => component.types.includes('postal_code'));
+                    zipcodeInput.value = zipcodeComponent ? zipcodeComponent.long_name : '';
+                    const countryComponent = place.address_components.find(component => component.types.includes('country'));
+                    countryInput.value = countryComponent ? countryComponent.long_name : '';
+                    const districtComponent = place.address_components.find(component => component.types.includes('administrative_area_level_2'));
+                    districtInput.value = districtComponent ? districtComponent.long_name : '';
+                    latitudeInput.value = place.geometry.location.lat();
+                    longitudeInput.value = place.geometry.location.lng();
+
+                    // Validar si la ubicación está dentro de los polígonos
+                    const insidePolygon1 = google.maps.geometry.poly.containsLocation(place.geometry.location, polygons[0]);
+                    const insidePolygon2 = google.maps.geometry.poly.containsLocation(place.geometry.location, polygons[1]);
+                    const insidePolygon3 = google.maps.geometry.poly.containsLocation(place.geometry.location, polygons[2]);
+
+                    // Mostrar un mensaje personalizado para cada área
+                    if (insidePolygon1) {
+                        messageDiv.textContent = 'La ubicación está dentro del primer polígono.';
+                    } else if (insidePolygon2) {
+                        messageDiv.textContent = 'La ubicación está dentro del segundo polígono.';
+                    } else if (insidePolygon3) {
+                        messageDiv.textContent = 'La ubicación está dentro del tercer polígono.';
+                    } else {
+                        messageDiv.textContent = 'La ubicación está fuera de los polígonos.';
+                    }
+
+                    // Mover el marcador al lugar seleccionado
+                    if (marker) {
+                        marker.setMap(null);
+                    }
+                    marker = new google.maps.Marker({
+                        map: map,
+                        position: place.geometry.location
+                    });
+
+                    // Centrar el mapa en la nueva ubicación
+                    map.setCenter(place.geometry.location);
+                    map.setZoom(15);
+                } else {
+                    // Manejar el caso donde el lugar no tiene las propiedades esperadas
+                    console.error('El lugar seleccionado no tiene las propiedades esperadas.');
+                }
+            });
+
+            function checkIfInsidePolygons(location) {
+                // Función para verificar si la ubicación está dentro de los polígonos
+                for (let i = 0; i < polygons.length; i++) {
+                    if (google.maps.geometry.poly.containsLocation(location, polygons[i])) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+        }
+    </script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBZ5ihFZgOO_KI1pPvj4yqI0Wi-XMkKxzA&libraries=geometry,places&callback=initMap" async defer></script>
+</body>
+</html>
