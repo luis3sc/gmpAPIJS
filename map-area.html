@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout</title>
+    <link rel="stylesheet" href="estilos.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBZ5ihFZgOO_KI1pPvj4yqI0Wi-XMkKxzA&libraries=geometry,places&callback=initMap" async defer></script>
+</head>
+<body class="hres rel overf">
+        <main class="w100 padsup1">
+            <div class="step" id="step2">
+              <div class="flex-colum gap1 w100">
+                  <h2>Confirmar Dirección</h2>
+                    <div class="map-cont rel">
+                        
+                        <div id="map"></div>
+                        <div class="bgespe"></div>
+                        <div class="mapa-foot">
+                            <input class="input-ubi" type="text" id="direccion" name="pid_collect_google_address">
+                        </div>
+                        <button id="get-location-button" type="button" class="btn-map-gcu">
+                            <p>Encuentrame</p>
+                            <img class="img-btn-map" src="https://static.thenounproject.com/png/2819186-200.png" alt="">
+                        </button>
+                    </div>
+                    <div id="mensaje" class="mensaje">
+                        Ingresa una dirección o utiliza el boton de "encuentrame"
+                    </div>
+                    <input type="hidden" id="map-lat" />
+                    <input type="hidden" id="map-lon" />
+                    <input class="form-control border1px border05 padding1 brdrgris" type="hidden" id="lat" name="pid_collect_lat_long">
+                    <input class="form-control col-md-6" type="hidden" id="origen" value="-12.034383680898243, -76.925938152523">
+                    <input class="form-control col-md-6" type="hidden" id="distanciakm" readonly>
+                  <button class="padding1 w100 brojo border20 colblanco bold tac" type="button" id="next-step2">Siguiente</button>
+              </div>
+            </div>
+        </main>
+    <script src="locationpicker.jquery.js"></script>           
+    <script>
+        // mapa
+        function initMap() {
+            var poligono1 = [
+                {lat: -12.058707,lng: -77.047496},
+                {lat: -12.07348,lng: -77.050886},
+                {lat: -12.071927,lng: -77.030115},
+                {lat: -12.057952,lng: -77.035823}
+                // Agrega más puntos según la forma del polígono
+            ];
+
+            var poligono2 = [
+                {lat: 34.0522,lng: -118.2437},
+                {lat: 34.0522,lng: -118.2139},
+                {lat: 34.0796,lng: -118.2139},
+                {lat: 34.0796,lng: -118.2437}
+                // Agrega más puntos según la forma del polígono
+            ];
+
+            var poligono3 = [
+                {lat: 40.7128,lng: -74.0060},
+                {lat: 40.7128,lng: -73.9761},
+                {lat: 40.7488,lng: -73.9761},
+                {lat: 40.7488,lng: -74.0060}
+                // Agrega más puntos según la forma del polígono
+            ];
+
+            function isPointInPolygon(point, polygon) {
+                var x = point.lat;
+                var y = point.lng;
+            
+                var isInside = false;
+                for (var i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+                    var xi = polygon[i].lat;
+                    var yi = polygon[i].lng;
+                    var xj = polygon[j].lat;
+                    var yj = polygon[j].lng;
+                
+                    var intersect = ((yi > y) !== (yj > y)) &&
+                        (x < ((xj - xi) * (y - yi) / (yj - yi)) + xi);
+                    if (intersect) isInside = !isInside;
+                }
+            
+                return isInside;
+            }
+        $(document).ready(function() {
+        $('#get-location-button').on('click', function() {
+            if ("geolocation" in navigator) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    var latitude = position.coords.latitude;
+                    var longitude = position.coords.longitude;
+                    $('#map-lat').val(latitude);
+                    $('#map-lon').val(longitude);
+                    $('#lat').val(latitude + ',' + longitude);
+                    $('#direccion').val("Current Location: " + latitude + ", " + longitude);
+                    $('#map').locationpicker('location', {
+                        latitude: latitude,
+                        longitude: longitude
+                    });
+                    calculateDistanceAndTime();
+                    checkLocationInPolygons(latitude, longitude);
+                }, function(error) {
+                    alert("Error al obtener la ubicación actual: " + error.message);
+                });
+            } else {
+                alert("La geolocalización no está disponible en este navegador.");
+            }
+        });
+
+        function checkLocationInPolygons(latitude, longitude) {
+            var location = { lat: latitude, lng: longitude };
+            var isInPolygon1 = isPointInPolygon(location, poligono1);
+            var isInPolygon2 = isPointInPolygon(location, poligono2);
+            var isInPolygon3 = isPointInPolygon(location, poligono3);
+
+            if (isInPolygon1) {
+                $('#mensaje').text('Se encuentra dentro de nuestra área de entrega 😄');
+            } else if (isInPolygon2) {
+                $('#mensaje').text('Se encuentra dentro de nuestra área de entrega 2 😄');
+            } else if (isInPolygon3) {
+                $('#mensaje').text('Se encuentra dentro de nuestra área de entrega 3 😄');
+            } else {
+                $('#mensaje').text('No se encuentra dentro de nuestra area de delivery 😪');
+            }
+        }
+
+
+        function updateDistanceInSoles(distanceText) {
+            var distanceValue = parseFloat(distanceText);
+            if (!isNaN(distanceValue)) {
+                var newDistanceValue = (distanceValue * 1.5).toFixed(2);
+                $('#distancia-soles').text('S/' + newDistanceValue);
+            }
+        }
+        // $('#lat').on('change', function() {
+        //     calculateDistanceAndTime();
+        // });
+
+        
+        var distance, duration;
+        function calculateDistanceAndTime() {
+            var origin = $('#origen').val();
+            var destination = $('#lat').val();
+            var service = new google.maps.DistanceMatrixService();
+            service.getDistanceMatrix({
+                origins: [origin],
+                destinations: [destination],
+                travelMode: google.maps.TravelMode.DRIVING,
+                unitSystem: google.maps.UnitSystem.METRIC,
+            }, function(response, status) {
+                if (status === 'OK') {
+                    var rows = response.rows;
+                    if (rows && rows.length > 0) {
+                        var elements = rows[0].elements;
+                        if (elements && elements.length > 0) {
+                            var distance = elements[0].distance;
+                            var duration = elements[0].duration;
+                        
+                            if (distance && duration) {
+                                var distanceText = distance.text;
+                                var durationText = duration.text;
+                                $('#distanciakm').val(distanceText);
+                                $('#distanciadelivery').val(durationText);
+                                updateDistanceInSoles(distanceText);
+                            }
+                        }
+                    }
+                } else {
+                    console.log('Error:', status);
+                }
+            });
+        }
+        $.fn.locationpicker.defaults = {
+            location: {
+                latitude: "", //
+                longitude: "" //
+            },
+            locationName: "",
+            radius: 500,
+            zoom: 16,
+            mapTypeId: google.maps.MapTypeId.ROADMAP,
+            styles: [],
+            mapOptions: {
+                mapId: "680e04a2df73641a", // ID mapa
+                disableDefaultUI: true, // deshabilitar UI del Mapa
+            },
+            scrollwheel: true,
+            inputBinding: {
+                latitudeInput: null,
+                longitudeInput: null,
+                radiusInput: null,
+                locationNameInput: null
+            },
+            enableAutocompleteBlur: true,
+            autocompleteOptions: null,
+            addressFormat: "ST_NAME",
+            enableReverseGeocode: true,
+            draggable: true,
+            onchanged: function(currentLocation, radius, isMarkerDropped) {},
+            onlocationnotfound: function(locationName) {},
+            oninitialized: function(component) {},
+            markerIcon: undefined,
+            markerDraggable: true,
+            markerVisible: true
+        };
+        $('#map').locationpicker({
+            enableAutocomplete: true,
+            enableReverseGeocode: true,
+            radius: 0,
+            inputBinding: {
+                latitudeInput: $('#map-lat'),
+                longitudeInput: $('#map-lon'),
+                radiusInput: $('#map-radius'),
+                locationNameInput: $('#direccion')
+            },
+            onchanged: function(currentLocation, radius, isMarkerDropped) {
+                checkLocationInPolygons(currentLocation.latitude, currentLocation.longitude); //Verifica latitud y longitu por current y marcador
+                document.getElementById("lat").value = currentLocation.latitude + ',' + currentLocation.longitude;
+                var addressComponents = $(this).locationpicker('map').location.addressComponents;
+                updateControls(addressComponents);
+            },
+            oninitialized: function(component) {
+                calculateDistanceAndTime();
+            }
+        });
+        function updateControls(addressComponents) {
+            // ... Código para actualizar los controles con los datos de la dirección ...
+        }
+        });
+    }
+    </script>  
+</body>
+</html>

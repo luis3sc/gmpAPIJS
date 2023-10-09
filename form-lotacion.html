@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Formulario de Ubicación</title>
-    <!-- Obtiene la direccion por Input Autocomplete o Boton de GetCurrentUser / Valida si esta dentro de los 3 areas, muestra el mensaje personalizado y muestra los datos en los -->
     <style>
         body {
     font-family: Arial, sans-serif;
@@ -31,28 +30,28 @@
         <div id="map"></div>
         <div id="message"></div>
         <label for="address">Direccion</label>
-        <input type="text" id="address" autocomplete="address" placeholder="Dirección">
+        <input readonly type="text" id="address" autocomplete="address" placeholder="Dirección">
         <br>
         <label for="zipcode">Codigo Postal</label>
-        <input type="text" id="zipcode" autocomplete="postal-code" placeholder="Código Postal">
+        <input readonly type="text" id="zipcode" autocomplete="postal-code" placeholder="Código Postal">
         <br>
         <label for="country">País</label>
-        <input type="text" id="country" autocomplete="country" placeholder="País">
+        <input readonly type="text" id="country" autocomplete="country" placeholder="País">
         <br>
         <label for="district">Distrito</label>
-        <input type="text" id="district" autocomplete="address-level2" placeholder="Distrito">
+        <input readonly type="text" id="district" autocomplete="address-level2" placeholder="Distrito">
         <br>
         <label for="latitude">Latitud</label>
-        <input type="text" id="latitude" autocomplete="latitude" placeholder="Latitud">
+        <input readonly type="text" id="latitude" autocomplete="latitude" placeholder="Latitud">
         <br>
         <label for="longitude">Longitud</label>
-        <input type="text" id="longitude" autocomplete="longitude" placeholder="Longitud">
+        <input readonly type="text" id="longitude" autocomplete="longitude" placeholder="Longitud">
         <br>
         <button id="saveLocation">Guardar Ubicación</button>
     </div>
 
     <script>
-         let map;
+        let map;
         let polygons = []; // Almacena los polígonos
         let marker;
 
@@ -68,99 +67,28 @@
             // Definir los polígonos para las tres áreas
             const polygon1 = new google.maps.Polygon({
                 paths: [
-                { lat: -12.045956, lng: -76.944525 },
-            { lat: -12.051958, lng: -76.942551 },
-            { lat: -12.05265, lng: -76.942186 },
-            { lat: -12.052902, lng: -76.941735 },
-            { lat: -12.052797, lng: -76.941306 },
-            { lat: -12.053112, lng: -76.940856 },
-            { lat: -12.053553, lng: -76.94019 },
-            { lat: -12.053805, lng: -76.939354 },
-            { lat: -12.053993, lng: -76.933367 },
-            { lat: -12.059995, lng: -76.930277 },
-            { lat: -12.066227, lng: -76.927487 },
-            { lat: -12.067255, lng: -76.926243 },
-            { lat: -12.067759, lng: -76.922638 },
-            { lat: -12.064611, lng: -76.918518 },
-            { lat: -12.061674, lng: -76.915299 },
-            { lat: -12.057687, lng: -76.912939 },
-            { lat: -12.05563, lng: -76.908819 },
-            { lat: -12.05265, lng: -76.908218 },
-            { lat: -12.049125, lng: -76.908948 },
-            { lat: -12.041151, lng: -76.912167 },
-            { lat: -12.036618, lng: -76.914312 },
-            { lat: -12.034036, lng: -76.915214 },
-            { lat: -12.033617, lng: -76.916201 },
-            { lat: -12.032399, lng: -76.916995 },
-            { lat: -12.030679, lng: -76.918003 },
-            { lat: -12.028076, lng: -76.917907 },
-            { lat: -12.026765, lng: -76.91796 },
-            { lat: -12.0256, lng: -76.918497 },
-            { lat: -12.024299, lng: -76.918926 },
-            { lat: -12.023826, lng: -76.919076 },
-            { lat: -12.022242, lng: -76.919848 },
-            { lat: -12.023207, lng: -76.930191 },
-            { lat: -12.022872, lng: -76.937315 },
-            { lat: -12.022914, lng: -76.942122 },
-            { lat: -12.023291, lng: -76.945254 },
-            { lat: -12.024131, lng: -76.953322 },
-            { lat: -12.027971, lng: -76.954438 },
-            { lat: -12.028223, lng: -76.95476 },
-            { lat: -12.029566, lng: -76.955339 },
-            { lat: -12.028895, lng: -76.951069 },
-            { lat: -12.035817, lng: -76.949322 },
-            { lat: -12.043855, lng: -76.945674 }
+                    {lat: 37.7749,lng: -122.4194},
+                    {lat: 37.7749,lng: -122.3897},
+                    {lat: 37.8049,lng: -122.3897},
+                    {lat: 37.8049,lng: -122.4194}
                 ]
             });
 
             const polygon2 = new google.maps.Polygon({
                 paths: [
-                { lat: -12.023473, lng: -76.91925 },
-            { lat: -12.024271, lng: -76.918907 },
-            { lat: -12.026852, lng: -76.917877 },
-            { lat: -12.030609, lng: -76.917984 },
-            { lat: -12.033694, lng: -76.916117 },
-            { lat: -12.034009, lng: -76.915152 },
-            { lat: -12.038793, lng: -76.913242 },
-            { lat: -12.04469, lng: -76.910646 }, 
-            { lat: -12.046327, lng: -76.909444 },
-            { lat: -12.049013, lng: -76.902256 },
-            { lat: -12.049832, lng: -76.896398 }, 
-            { lat: -12.053857, lng: -76.892417 },
-            { lat: -12.055242, lng: -76.885336 },
-            { lat: -12.049283, lng: -76.87495 }, 
-            { lat: -12.048401, lng: -76.868298 },
-            { lat: -12.046345, lng: -76.866796 },
-            { lat: -12.035359, lng: -76.861456 }, 
-            { lat: -12.024278, lng: -76.861113 },
-            { lat: -12.010594, lng: -76.865705 },
-            { lat: -12.008957, lng: -76.866306 }, 
-            { lat: -12.006741, lng: -76.867799 },
-            { lat: -12.007035, lng: -76.873507 },
-            { lat: -12.010393, lng: -76.8793 }, 
-            { lat: -12.011988, lng: -76.878914 },
-            { lat: -12.019974, lng: -76.902609 },
-            { lat: -12.02203, lng: -76.909175 },  
-            { lat: -12.023038, lng: -76.91647 } 
+                    {lat: 34.0522,lng: -118.2437},
+                    {lat: 34.0522,lng: -118.2139},
+                    {lat: 34.0796,lng: -118.2139},
+                    {lat: 34.0796,lng: -118.2437}
                 ]
             });
 
             const polygon3 = new google.maps.Polygon({
-                paths: [{
-                        lat: 40.7128,
-                        lng: -74.0060
-                    },
-                    {
-                        lat: 40.7128,
-                        lng: -73.9761
-                    },
-                    {
-                        lat: 40.7488,
-                        lng: -73.9761
-                    },
-                    {
-                        lat: 40.7488,
-                        lng: -74.0060
+                paths: [
+                    {lat: 40.7128,lng: -74.0060},
+                    {lat: 40.7128,lng: -73.9761},
+                    {lat: 40.7488,lng: -73.9761},
+                    {lat: 40.7488,lng: -74.0060
                     }
                 ]
             });
