@@ -41,6 +41,7 @@
     <script src="locationpicker.jquery.js"></script>           
     <script>
         // mapa
+        const image = "https://tortaza.com.pe/Assets/web/img/icono-tortazin.png";
         function initMap() {
             var poligono1 = [
                 {lat: -12.058707,lng: -77.047496},
@@ -171,7 +172,9 @@
                 }
             });
         }
+        
         $.fn.locationpicker.defaults = {
+            
             location: {
                 latitude: "", //
                 longitude: "" //
@@ -182,7 +185,7 @@
             mapTypeId: google.maps.MapTypeId.ROADMAP,
             styles: [],
             mapOptions: {
-                mapId: "680e04a2df73641a", // ID mapa
+                //mapId: "680e04a2df73641a", // ID mapa
                 disableDefaultUI: true, // deshabilitar UI del Mapa
             },
             scrollwheel: true,
@@ -200,9 +203,10 @@
             onchanged: function(currentLocation, radius, isMarkerDropped) {},
             onlocationnotfound: function(locationName) {},
             oninitialized: function(component) {},
-            markerIcon: undefined,
-            markerDraggable: true,
-            markerVisible: true
+            markerIcon: image,
+            markerDraggable: true,//hacer que el marcador sea Draggable
+            markerVisible: true,
+            //markerInCenter: true  | centrar marcador hace que el input ya no pueda definir una dirección pipipi :(       
         };
         $('#map').locationpicker({
             enableAutocomplete: true,

@@ -17,16 +17,18 @@
             width: 100%;
         }
         .img-btn-map{
-            height: inherit;
+            height: calc(100% - .5em);
         }
         .input-ubi{
-            width: 94%;
+            width: 90%;
             margin: auto;
             position: absolute;
             top: 1em;
+            font-size: 1.2em;
             left: 1em;
             padding: .5em;
-            border: 1px solid;
+            border-radius: 10px;
+            border: 1px solid #dcdcdc;
             z-index: 1;
         }
         .btn-map-gcu{
@@ -40,6 +42,11 @@
             position: absolute;
             bottom: 6em;
             right: 1em;
+            border-radius: 10px;
+            
+        }
+        .btn-map-gcu p{
+            font-size: 1.2em;
             font-weight: bold;
         }
         .rel{
